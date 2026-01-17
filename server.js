@@ -1,30 +1,37 @@
 const express = require('express');
+const axios = require('axios');
 const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
-let currentLog = "Логов пока нет";
+let currentLog = "Логов пока нет...";
 
-app.get('/', (req, res) => {
-    res.send(`
-        <body style="background: #111; color: white; text-align: center; font-family: sans-serif; padding: 20px;">
-            <h1>FEST LOG PANEL</h1>
-            <p>Текущий лог: <br><span style="color: #ff0064;">${currentLog}</span></p>
-            <form action="/update" method="POST">
-                <textarea name="logtext" style="width: 100%; height: 100px; border-radius: 10px; padding: 10px;"></textarea><br><br>
-                <button type="submit" style="width: 100%; padding: 15px; background: #ff0064; color: white; border: none; border-radius: 10px; font-weight: bold;">ОБНОВИТЬ ЛОГ</button>
-            </form>
-        </body>
-    `);
-});
+// Настройки
+const DISCORD_TOKEN = process.env.TOKEN; 
+const CHANNEL_ID = '1329584405373849764'; // Твой ID канала
 
-app.post('/update', (req, res) => {
-    currentLog = req.body.logtext;
-    res.redirect('/');
-});
+async function fetchDiscord() {
+    if (!DISCORD_TOKEN) return;
 
-app.get('/get_logs', (req, res) => {
-    res.send(currentLog);
-});
+    try {
+        const response = await axios.get(`https://discord.com/api/v9/channels/${CHANNEL_ID}/messages?limit=1`, {
+            headers: { 
+                // ВАЖНО: Для бота обязательно добавляем слово Bot перед токеном
+                'Authorization': `Bot ${DISCORD_TOKEN}` 
+            }
+        });
 
-app.listen(process.env.PORT || 3000);
+        if (response.data && response.data.length > 0) {
+            currentLog = response.data[0].content;
+        }
+    } catch (err) {
+        console.log("Ошибка запроса: " + err.message);
+    }
+}
+
+// Проверка каждые 3 секунды
+setInterval(fetchDiscord, 3000);
+
+app.get('/', (req, res) => res.send("Сервер работает!"));
+app.get('/get_logs', (req, res) => res.send(currentLog));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Слушаю порт " + PORT));
