@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = async (req, res) => {
     // Твой ОБНОВЛЕННЫЙ токен
-    const TOKEN = 'MTM5NTA2MjEyNzY3NjM1ODc0Nw.G4PDRG.yjH51pQDZKnrx52t8Uzzx4GaSz7FsnzMWck8YA';
+    const TOKEN = 'MTM5NTA2MjEyNzY3NjM1ODc0Nw.Gm5RNU.IuKCQFi3OjJhrl826ZSy-S5g2T3RoAWJEWlp6E';
     const CHANNEL_ID = '1401775061706346536';
 
     res.setHeader('Access-Control-Allow-Origin', '*');
